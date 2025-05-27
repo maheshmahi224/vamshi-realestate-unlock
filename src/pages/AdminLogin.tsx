@@ -32,9 +32,8 @@ const AdminLogin = () => {
         return;
       }
 
-      // For now, we'll use a simple password check
-      // In production, you should hash passwords properly
-      if (form.password === "mahesh") {
+      // Check password - using "admin123" as the correct password
+      if (form.password === "admin123") {
         // Store admin session in localStorage for demo
         localStorage.setItem('admin_session', JSON.stringify({
           email: adminUser.email,
@@ -122,7 +121,7 @@ const AdminLogin = () => {
 
           <div className="mt-4 p-3 bg-blue-50 rounded-lg animate-fade-in">
             <p className="text-sm text-blue-800">
-              <strong>Demo Credentials:</strong><br />
+              <strong>Admin Credentials:</strong><br />
               Email: admin@vamshirealestate.com<br />
               Password: admin123
             </p>
