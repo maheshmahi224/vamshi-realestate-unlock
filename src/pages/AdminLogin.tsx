@@ -34,7 +34,7 @@ const AdminLogin = () => {
 
       // For now, we'll use a simple password check
       // In production, you should hash passwords properly
-      if (form.password === "admin123") {
+      if (form.password === "mahesh") {
         // Store admin session in localStorage for demo
         localStorage.setItem('admin_session', JSON.stringify({
           email: adminUser.email,
