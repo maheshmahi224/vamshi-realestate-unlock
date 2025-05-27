@@ -1,58 +1,134 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Bed, Bath, Square, Calendar, Phone, Lock } from "lucide-react";
+import { MapPin, Bed, Bath, Square, Calendar, Phone, Lock, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface Property {
+  id: string;
+  name: string;
+  price: string;
+  location: string;
+  image: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: string;
+  type: string;
+  date_posted: string;
+  phone: string;
+  owner_name: string;
+  details: string;
+}
 
 const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [showPhone, setShowPhone] = useState(false);
-  
-  // Mock property data - in real app this would come from database
-  const property = {
-    id: "1",
-    name: "3BHK Luxurious Apartment",
-    price: "₹85 Lakhs",
-    location: "Hitech City, Hyderabad",
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?q=80&w=1000",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: "1450 sq ft",
-    type: "Apartment",
-    datePosted: "January 15, 2024",
-    phone: "+91 98765 43210",
-    ownerName: "Rajesh Kumar",
-    details: `This stunning 3BHK apartment offers modern living at its finest. Located in the heart of Hitech City, this property features:
+  const { user, signOut } = useAuth();
+  const [property, setProperty] = useState<Property | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(false);
 
-• Spacious rooms with premium fittings
-• Modular kitchen with granite countertops  
-• Master bedroom with attached bathroom
-• Balcony with city view
-• 24/7 security and power backup
-• Covered parking space
-• Close to IT parks, schools, and hospitals
-• Easy access to public transportation
+  useEffect(() => {
+    if (id) {
+      fetchProperty();
+      if (user) {
+        checkPaymentAccess();
+      }
+    }
+  }, [id, user]);
 
-The apartment is ready to move in and comes with all modern amenities. Perfect for families looking for a comfortable lifestyle in Hyderabad's premier IT hub.`
+  const fetchProperty = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      setProperty(data);
+    } catch (error) {
+      console.error('Error fetching property:', error);
+      toast.error('Property not found');
+      navigate('/properties');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkPaymentAccess = async () => {
+    if (!user || !id) return;
+    
+    setCheckingAccess(true);
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('property_id', id)
+        .eq('payment_status', 'completed')
+        .single();
+
+      if (data && !error) {
+        setHasAccess(true);
+      }
+    } catch (error) {
+      // No payment found, which is fine
+      setHasAccess(false);
+    } finally {
+      setCheckingAccess(false);
+    }
   };
 
   const handleUnlockContact = () => {
-    // Check if user is logged in (mock check)
-    const isLoggedIn = false; // This would come from auth context
-    
-    if (!isLoggedIn) {
+    if (!user) {
       toast.info("Please login to unlock contact details");
       navigate('/login');
       return;
     }
     
-    // Redirect to payment
-    navigate('/payment');
+    // Redirect to payment page
+    navigate(`/payment/${id}`);
   };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      toast.error('Error signing out');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-600"></div>
+          <p className="mt-4 text-gray-600">Loading property...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!property) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Property not found</p>
+          <Button onClick={() => navigate('/properties')} className="mt-4">
+            Back to Properties
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -63,12 +139,22 @@ The apartment is ready to move in and comes with all modern amenities. Perfect f
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-emerald-600">Vamshi Realestate</h1>
             </div>
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-8 items-center">
               <Button variant="ghost" onClick={() => navigate('/')}>Home</Button>
               <Button variant="ghost" onClick={() => navigate('/properties')}>Properties</Button>
               <Button variant="ghost">About</Button>
               <Button variant="ghost">Contact</Button>
-              <Button onClick={() => navigate('/login')}>Login</Button>
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">Welcome, {user.email}</span>
+                  <Button variant="outline" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={() => navigate('/login')}>Login</Button>
+              )}
             </nav>
           </div>
         </div>
@@ -127,7 +213,7 @@ The apartment is ready to move in and comes with all modern amenities. Perfect f
             {/* Date Posted */}
             <div className="flex items-center text-gray-600">
               <Calendar className="h-5 w-5 mr-2" />
-              <span>Posted on {property.datePosted}</span>
+              <span>Posted on {new Date(property.date_posted).toLocaleDateString()}</span>
             </div>
 
             {/* Contact Section */}
@@ -137,26 +223,27 @@ The apartment is ready to move in and comes with all modern amenities. Perfect f
                 <div className="space-y-3">
                   <div>
                     <span className="text-gray-600">Owner: </span>
-                    <span className="font-medium">{property.ownerName}</span>
+                    <span className="font-medium">{property.owner_name}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Phone className="h-5 w-5 mr-2 text-gray-600" />
-                      {showPhone ? (
+                      {hasAccess ? (
                         <span className="font-medium text-emerald-600">{property.phone}</span>
                       ) : (
                         <div className="flex items-center">
-                          <span className="text-gray-400 blur-sm select-none">+91 98765 43210</span>
+                          <span className="text-gray-400 blur-sm select-none">{property.phone}</span>
                           <Lock className="h-4 w-4 ml-2 text-gray-400" />
                         </div>
                       )}
                     </div>
-                    {!showPhone && (
+                    {!hasAccess && (
                       <Button 
                         onClick={handleUnlockContact}
                         className="bg-emerald-600 hover:bg-emerald-700"
+                        disabled={checkingAccess}
                       >
-                        Unlock Contact - ₹99
+                        {checkingAccess ? "Checking..." : "Unlock Contact - ₹99"}
                       </Button>
                     )}
                   </div>

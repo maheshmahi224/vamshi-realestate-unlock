@@ -9,7 +9,161 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          password_hash: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          password_hash: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          password_hash?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          payment_gateway_id: string | null
+          payment_status: string | null
+          property_id: string | null
+          unlocked_at: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_gateway_id?: string | null
+          payment_status?: string | null
+          property_id?: string | null
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_gateway_id?: string | null
+          payment_status?: string | null
+          property_id?: string | null
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          area: string | null
+          bathrooms: number | null
+          bedrooms: number | null
+          created_at: string
+          date_posted: string | null
+          details: string | null
+          id: string
+          image: string | null
+          location: string
+          name: string
+          owner_name: string
+          phone: string
+          price: string
+          type: string | null
+          updated_at: string
+        }
+        Insert: {
+          area?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          date_posted?: string | null
+          details?: string | null
+          id?: string
+          image?: string | null
+          location: string
+          name: string
+          owner_name: string
+          phone: string
+          price: string
+          type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          area?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          date_posted?: string | null
+          details?: string | null
+          id?: string
+          image?: string | null
+          location?: string
+          name?: string
+          owner_name?: string
+          phone?: string
+          price?: string
+          type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

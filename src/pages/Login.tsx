@@ -7,9 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { signIn, signUp, user } = useAuth();
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [signupForm, setSignupForm] = useState({ 
     name: "", 
@@ -18,29 +21,34 @@ const Login = () => {
     confirmPassword: "" 
   });
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      navigate('/properties');
+    }
+  }, [user, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login - in real app this would use Supabase auth
-    if (loginForm.email && loginForm.password) {
+    try {
+      await signIn(loginForm.email, loginForm.password);
       toast.success("Login successful!");
       navigate('/properties');
-    } else {
-      toast.error("Please fill in all fields");
+    } catch (error: any) {
+      toast.error(error.message || "Login failed");
     }
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (signupForm.password !== signupForm.confirmPassword) {
       toast.error("Passwords don't match");
       return;
     }
-    // Mock signup - in real app this would use Supabase auth
-    if (signupForm.name && signupForm.email && signupForm.password) {
-      toast.success("Account created successfully!");
-      navigate('/properties');
-    } else {
-      toast.error("Please fill in all fields");
+    try {
+      await signUp(signupForm.email, signupForm.password, signupForm.name);
+      toast.success("Account created successfully! Please check your email for verification.");
+    } catch (error: any) {
+      toast.error(error.message || "Signup failed");
     }
   };
 

@@ -1,26 +1,138 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, CreditCard, Lock, Shield } from "lucide-react";
+import { Check, CreditCard, Lock, Shield, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface Property {
+  id: string;
+  name: string;
+  price: string;
+  location: string;
+}
 
 const Payment = () => {
   const navigate = useNavigate();
+  const { propertyId } = useParams();
+  const { user, signOut } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [property, setProperty] = useState<Property | null>(null);
+  const [paymentGatewayUrl, setPaymentGatewayUrl] = useState("");
+
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please login to continue");
+      navigate('/login');
+      return;
+    }
+
+    if (propertyId) {
+      fetchProperty();
+    }
+  }, [user, propertyId, navigate]);
+
+  const fetchProperty = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('id, name, price, location')
+        .eq('id', propertyId)
+        .single();
+
+      if (error) throw error;
+      setProperty(data);
+    } catch (error) {
+      console.error('Error fetching property:', error);
+      toast.error('Property not found');
+      navigate('/properties');
+    }
+  };
 
   const handlePayment = async () => {
+    if (!user || !property) return;
+
     setIsProcessing(true);
     
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      // Create payment record
+      const { data: paymentData, error: paymentError } = await supabase
+        .from('payments')
+        .insert({
+          user_id: user.id,
+          property_id: property.id,
+          amount: 9900, // ₹99 in paise
+          currency: 'INR',
+          payment_status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (paymentError) {
+        if (paymentError.code === '23505') {
+          toast.error("You have already unlocked this property's contact details!");
+          navigate(`/property/${property.id}`);
+          return;
+        }
+        throw paymentError;
+      }
+
+      // For now, simulate payment success
+      // Replace this with actual payment gateway integration
+      if (paymentGatewayUrl) {
+        // Redirect to external payment gateway
+        window.open(paymentGatewayUrl, '_blank');
+      } else {
+        // Simulate payment for demo
+        setTimeout(async () => {
+          try {
+            await supabase
+              .from('payments')
+              .update({
+                payment_status: 'completed',
+                payment_gateway_id: 'demo_' + Date.now(),
+                unlocked_at: new Date().toISOString()
+              })
+              .eq('id', paymentData.id);
+
+            toast.success("Payment successful! Contact details unlocked.");
+            navigate(`/property/${property.id}`);
+          } catch (error) {
+            toast.error("Payment verification failed");
+          }
+          setIsProcessing(false);
+        }, 2000);
+      }
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast.error(error.message || "Payment failed");
       setIsProcessing(false);
-      toast.success("Payment successful! Phone number unlocked.");
-      navigate('/property/1?premium=true');
-    }, 2000);
+    }
   };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      toast.error('Error signing out');
+    }
+  };
+
+  if (!property) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-emerald-100">
@@ -31,11 +143,20 @@ const Payment = () => {
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-emerald-600">Vamshi Realestate</h1>
             </div>
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-8 items-center">
               <Button variant="ghost" onClick={() => navigate('/')}>Home</Button>
               <Button variant="ghost" onClick={() => navigate('/properties')}>Properties</Button>
               <Button variant="ghost">About</Button>
               <Button variant="ghost">Contact</Button>
+              {user && (
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">Welcome, {user.email}</span>
+                  <Button variant="outline" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              )}
             </nav>
           </div>
         </div>
@@ -100,9 +221,27 @@ const Payment = () => {
               {/* Property Info */}
               <div className="border rounded-lg p-4 bg-emerald-50">
                 <h4 className="font-semibold text-gray-900 mb-2">Property Details</h4>
-                <p className="text-sm text-gray-600">3BHK Luxurious Apartment</p>
-                <p className="text-sm text-gray-600">Hitech City, Hyderabad</p>
+                <p className="text-sm text-gray-600">{property.name}</p>
+                <p className="text-sm text-gray-600">{property.location}</p>
+                <p className="text-sm text-gray-600">Price: {property.price}</p>
                 <Badge className="mt-2 bg-emerald-600">Premium Contact Access</Badge>
+              </div>
+
+              {/* Payment Gateway URL Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Payment Gateway URL (Optional - for testing)
+                </label>
+                <input
+                  type="url"
+                  placeholder="Enter payment gateway URL"
+                  value={paymentGatewayUrl}
+                  onChange={(e) => setPaymentGatewayUrl(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="text-xs text-gray-500">
+                  Leave empty to use demo payment (automatically completes after 2 seconds)
+                </p>
               </div>
 
               {/* Payment Summary */}
@@ -138,7 +277,7 @@ const Payment = () => {
         <div className="text-center mt-8">
           <Button 
             variant="outline" 
-            onClick={() => navigate('/property/1')}
+            onClick={() => navigate(`/property/${property.id}`)}
           >
             ← Back to Property
           </Button>

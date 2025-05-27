@@ -7,19 +7,51 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Building } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock admin login - in real app this would use proper admin authentication
-    if (form.email === "admin@vamshirealestate.com" && form.password === "admin123") {
-      toast.success("Admin login successful!");
-      navigate('/admin/dashboard');
-    } else {
-      toast.error("Invalid admin credentials");
+    setLoading(true);
+
+    try {
+      // First check if user exists in admin_users table
+      const { data: adminUser, error: adminError } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', form.email)
+        .single();
+
+      if (adminError || !adminUser) {
+        toast.error("Invalid admin credentials");
+        setLoading(false);
+        return;
+      }
+
+      // For now, we'll use a simple password check
+      // In production, you should hash passwords properly
+      if (form.password === "admin123") {
+        // Store admin session in localStorage for demo
+        localStorage.setItem('admin_session', JSON.stringify({
+          email: adminUser.email,
+          name: adminUser.full_name,
+          role: adminUser.role
+        }));
+        
+        toast.success("Admin login successful!");
+        navigate('/admin/dashboard');
+      } else {
+        toast.error("Invalid admin credentials");
+      }
+    } catch (error) {
+      console.error('Admin login error:', error);
+      toast.error("Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,10 +102,11 @@ const AdminLogin = () => {
             </div>
             <Button 
               type="submit" 
+              disabled={loading}
               className="w-full bg-emerald-600 hover:bg-emerald-700 transition-all duration-200 hover-scale animate-fade-in"
             >
               <Shield className="h-4 w-4 mr-2" />
-              Admin Login
+              {loading ? "Signing in..." : "Admin Login"}
             </Button>
           </form>
           
@@ -85,6 +118,14 @@ const AdminLogin = () => {
             >
               ← Back to Main Site
             </Button>
+          </div>
+
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg animate-fade-in">
+            <p className="text-sm text-blue-800">
+              <strong>Demo Credentials:</strong><br />
+              Email: admin@vamshirealestate.com<br />
+              Password: admin123
+            </p>
           </div>
         </CardContent>
       </Card>
