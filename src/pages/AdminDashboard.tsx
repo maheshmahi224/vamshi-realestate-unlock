@@ -68,20 +68,20 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Admin Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b animate-fade-in">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Building className="h-8 w-8 text-emerald-600 mr-3" />
+            <div className="flex items-center space-x-3">
+              <Building className="h-8 w-8 text-emerald-600" />
               <h1 className="text-2xl font-bold text-emerald-600">Vamshi Realestate</h1>
-              <Badge className="ml-3 bg-emerald-100 text-emerald-800">Admin Panel</Badge>
+              <Badge className="bg-emerald-100 text-emerald-800 animate-pulse">Admin Panel</Badge>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={() => navigate('/')}>
+              <Button variant="outline" onClick={() => navigate('/')} className="hover-scale">
                 <Eye className="h-4 w-4 mr-2" />
                 View Site
               </Button>
-              <Button variant="outline" onClick={handleLogout}>
+              <Button variant="outline" onClick={handleLogout} className="hover-scale">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
@@ -92,17 +92,19 @@ const AdminDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Header */}
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
           <p className="text-gray-600">Manage your properties and track performance</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card className="hover:shadow-lg transition-all duration-300 hover-scale animate-fade-in">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Building className="h-8 w-8 text-emerald-600" />
+                <div className="bg-emerald-100 rounded-full p-3">
+                  <Building className="h-8 w-8 text-emerald-600" />
+                </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Properties</p>
                   <p className="text-2xl font-bold text-gray-900">{properties.length}</p>
@@ -111,10 +113,12 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-lg transition-all duration-300 hover-scale animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Eye className="h-8 w-8 text-blue-600" />
+                <div className="bg-blue-100 rounded-full p-3">
+                  <Eye className="h-8 w-8 text-blue-600" />
+                </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Views</p>
                   <p className="text-2xl font-bold text-gray-900">{totalViews}</p>
@@ -123,10 +127,12 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-lg transition-all duration-300 hover-scale animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Phone className="h-8 w-8 text-green-600" />
+                <div className="bg-green-100 rounded-full p-3">
+                  <Phone className="h-8 w-8 text-green-600" />
+                </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Contact Unlocks</p>
                   <p className="text-2xl font-bold text-gray-900">{totalContacts}</p>
@@ -135,10 +141,12 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-lg transition-all duration-300 hover-scale animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <BarChart3 className="h-8 w-8 text-purple-600" />
+                <div className="bg-purple-100 rounded-full p-3">
+                  <BarChart3 className="h-8 w-8 text-purple-600" />
+                </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Revenue</p>
                   <p className="text-2xl font-bold text-gray-900">₹{totalContacts * 99}</p>
@@ -149,20 +157,20 @@ const AdminDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-semibold text-gray-900">Quick Actions</h3>
           </div>
           <div className="flex flex-wrap gap-4">
-            <Button onClick={() => navigate('/admin/add-property')} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={() => navigate('/admin/add-property')} className="bg-emerald-600 hover:bg-emerald-700 hover-scale animate-scale-in">
               <Plus className="h-4 w-4 mr-2" />
               Add New Property
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" className="hover-scale animate-scale-in" style={{ animationDelay: '0.1s' }}>
               <BarChart3 className="h-4 w-4 mr-2" />
               View Analytics
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" className="hover-scale animate-scale-in" style={{ animationDelay: '0.2s' }}>
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </Button>
@@ -170,7 +178,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Properties Table */}
-        <Card>
+        <Card className="animate-fade-in">
           <CardHeader>
             <CardTitle>Recent Properties</CardTitle>
             <CardDescription>Manage your property listings</CardDescription>
@@ -190,8 +198,8 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {properties.map((property) => (
-                    <tr key={property.id} className="border-b hover:bg-gray-50">
+                  {properties.map((property, index) => (
+                    <tr key={property.id} className="border-b hover:bg-gray-50 transition-colors duration-200 animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                       <td className="py-3 px-4">
                         <div>
                           <p className="font-medium text-gray-900">{property.name}</p>
@@ -221,6 +229,7 @@ const AdminDashboard = () => {
                             size="sm" 
                             variant="outline"
                             onClick={() => navigate(`/admin/edit-property/${property.id}`)}
+                            className="hover-scale"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -228,7 +237,7 @@ const AdminDashboard = () => {
                             size="sm" 
                             variant="outline"
                             onClick={() => handleDeleteProperty(property.id, property.name)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 hover-scale"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

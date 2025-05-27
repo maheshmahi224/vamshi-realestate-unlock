@@ -81,18 +81,18 @@ const Index = () => {
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
               Your Dream Home <br />
               <span className="text-emerald-200">Awaits You</span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-emerald-100 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl mb-8 text-emerald-100 max-w-3xl mx-auto animate-fade-in">
               Discover premium properties in Hyderabad's most sought-after locations. 
               From luxury apartments to independent villas.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
               <Button 
                 size="lg" 
-                className="bg-white text-emerald-600 hover:bg-gray-100 text-lg px-8 py-3"
+                className="bg-white text-emerald-600 hover:bg-gray-100 text-lg px-8 py-3 hover-scale"
                 onClick={() => navigate('/properties')}
               >
                 Browse Properties
@@ -101,10 +101,9 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-emerald-600 text-lg px-8 py-3"
-                onClick={() => navigate('/admin/login')}
+                className="border-white text-white hover:bg-white hover:text-emerald-600 text-lg px-8 py-3 hover-scale"
               >
-                Admin Portal
+                Contact Us
               </Button>
             </div>
           </div>
@@ -115,14 +114,14 @@ const Index = () => {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Vamshi Realestate?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 animate-fade-in">Why Choose Vamshi Realestate?</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto animate-fade-in">
               We provide premium real estate services with verified properties and transparent processes
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+            <Card className="text-center p-6 hover:shadow-lg transition-all duration-300 hover-scale animate-fade-in">
               <CardContent className="space-y-4">
                 <div className="bg-emerald-100 rounded-full p-4 w-16 h-16 mx-auto flex items-center justify-center">
                   <Shield className="h-8 w-8 text-emerald-600" />
@@ -134,7 +133,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+            <Card className="text-center p-6 hover:shadow-lg transition-all duration-300 hover-scale animate-fade-in">
               <CardContent className="space-y-4">
                 <div className="bg-emerald-100 rounded-full p-4 w-16 h-16 mx-auto flex items-center justify-center">
                   <Users className="h-8 w-8 text-emerald-600" />
@@ -146,7 +145,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+            <Card className="text-center p-6 hover:shadow-lg transition-all duration-300 hover-scale animate-fade-in">
               <CardContent className="space-y-4">
                 <div className="bg-emerald-100 rounded-full p-4 w-16 h-16 mx-auto flex items-center justify-center">
                   <Star className="h-8 w-8 text-emerald-600" />
@@ -165,13 +164,13 @@ const Index = () => {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Properties</h2>
-            <p className="text-gray-600">Handpicked selection of our premium properties</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 animate-fade-in">Featured Properties</h2>
+            <p className="text-gray-600 animate-fade-in">Handpicked selection of our premium properties</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredProperties.map((property) => (
-              <Card key={property.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+            {featuredProperties.map((property, index) => (
+              <Card key={property.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group hover-scale animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className="relative overflow-hidden">
                   <img 
                     src={property.image} 
@@ -210,7 +209,7 @@ const Index = () => {
                   </div>
 
                   <Button 
-                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 transition-all duration-200"
                     onClick={() => navigate(`/property/${property.id}`)}
                   >
                     View Details
@@ -225,7 +224,7 @@ const Index = () => {
               onClick={() => navigate('/properties')} 
               variant="outline" 
               size="lg"
-              className="border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white"
+              className="border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white hover-scale animate-fade-in"
             >
               View All Properties
               <ArrowRight className="h-5 w-5 ml-2" />
@@ -237,14 +236,14 @@ const Index = () => {
       {/* Contact Section */}
       <section className="bg-emerald-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Find Your Dream Home?</h2>
-          <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4 animate-fade-in">Ready to Find Your Dream Home?</h2>
+          <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto animate-fade-in">
             Contact our expert team today and let us help you find the perfect property
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
             <Button 
               size="lg" 
-              className="bg-white text-emerald-600 hover:bg-gray-100"
+              className="bg-white text-emerald-600 hover:bg-gray-100 hover-scale"
               onClick={() => navigate('/properties')}
             >
               <Phone className="h-5 w-5 mr-2" />
@@ -253,7 +252,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-emerald-600"
+              className="border-white text-white hover:bg-white hover:text-emerald-600 hover-scale"
               onClick={() => navigate('/login')}
             >
               Get Started
@@ -279,10 +278,9 @@ const Index = () => {
             <div>
               <h3 className="text-white font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                <li><Button variant="link" className="text-gray-400 hover:text-white p-0">Properties</Button></li>
+                <li><Button variant="link" className="text-gray-400 hover:text-white p-0" onClick={() => navigate('/properties')}>Properties</Button></li>
                 <li><Button variant="link" className="text-gray-400 hover:text-white p-0">About Us</Button></li>
                 <li><Button variant="link" className="text-gray-400 hover:text-white p-0">Contact</Button></li>
-                <li><Button variant="link" className="text-gray-400 hover:text-white p-0">Admin</Button></li>
               </ul>
             </div>
             
